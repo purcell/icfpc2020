@@ -1,3 +1,5 @@
 /dist-newstyle/
 /dist/
 /.direnv
+/result
+/result-*
