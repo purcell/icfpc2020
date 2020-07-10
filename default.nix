@@ -1,42 +1,25 @@
 let
-  packageName = "icfpc2020";
-
   # Pinned version of nixpkgs determines our GHC
   sources = import ./nix/sources.nix;
-  pkgs = import sources.nixpkgs { };
-
-  gitignore = extra:
-    pkgs.nix-gitignore.gitignoreSourcePure ([ ./.gitignore ] ++ extra);
-
-  myHaskellPackages = pkgs.haskellPackages.override {
-    overrides = hself: hsuper: {
-      "${packageName}" =
-        hself.callCabal2nix
-          packageName
-          (gitignore [ ] ./.) { };
-    };
+  pkgs = import sources.nixpkgs {
+    overlays = [ (import ./overlay.nix) ];
   };
 
-  exe = pkgs.haskell.lib.justStaticExecutables (myHaskellPackages."${packageName}");
-
-  shell = myHaskellPackages.shellFor {
-    packages = p: [ p."${packageName}" ];
+  shell = with pkgs; haskellPackages.shellFor {
+    packages = p: [ p.icfpc2020 ];
 
     buildInputs = [
-      pkgs.nixpkgs-fmt
-      pkgs.niv
-      myHaskellPackages.hlint
-      myHaskellPackages.cabal-install
-      myHaskellPackages.ghcid
-      myHaskellPackages.ghcide
+      nixpkgs-fmt
+      niv
+      haskellPackages.hlint
+      haskellPackages.cabal-install
+      haskellPackages.ghcid
+      haskellPackages.ghcide
     ];
     withHoogle = true;
   };
-
 in
 {
   inherit shell;
-  inherit exe;
-  inherit myHaskellPackages;
-  "${packageName}" = myHaskellPackages."${packageName}";
+  inherit (pkgs) cli;
 }
