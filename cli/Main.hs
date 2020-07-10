@@ -5,9 +5,10 @@
 module Main where
 
 import Options.Generic
-import Prelude
+import Protolude
+import System.Environment (getProgName)
 
-data CLIOptions = CLIOptions { file :: FilePath }
+newtype CLIOptions = CLIOptions { file :: FilePath }
   deriving (Generic, Show)
 
 
@@ -16,7 +17,8 @@ instance ParseRecord CLIOptions
 
 main :: IO ()
 main = do
-  _options :: CLIOptions <- getRecord "cli"
+  progName <- getProgName
+  _options :: CLIOptions <- getRecord (toS progName)
   pure ()
 
 
