@@ -3,7 +3,8 @@
 
 ((haskell-mode
   (eglot-server-programs
-   (haskell-mode "ghcide" "--lsp")))
+   (haskell-mode "ghcide" "--lsp"))
+  (mode . ormolu-on-save))
  (nix-mode
   (mode . nixpkgs-fmt-on-save)))
 

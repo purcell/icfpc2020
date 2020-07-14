@@ -12,6 +12,7 @@ let
       nixpkgs-fmt
       niv
       haskellPackages.hlint
+      haskellPackages.ormolu
       haskellPackages.cabal-install
       haskellPackages.ghcid
       haskellPackages.ghcide
