@@ -1,13 +1,16 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Runtime where
 
 import qualified Data.List as L
 import Prelude
 
-nil :: [a]
+type Cons = [Integer]
+
+nil :: Cons
 nil = mempty
 
-eq :: Eq a => a -> a -> Bool
-eq = (==)
+eq !x !y = if x == y then t else f
 
 mul :: Integer -> Integer -> Integer
 mul = (*)
@@ -18,26 +21,28 @@ inc = (+ 1)
 add :: Integer -> Integer -> Integer
 add = (+)
 
-lt :: Ord a => a -> a -> Bool
-lt = (<)
+lt x y = if x < y then t else f
 
 div :: Integer -> Integer -> Integer
 div = Prelude.div
-
-isNil :: [a] -> Bool
-isNil = L.null
 
 i :: a -> a
 i = Prelude.id
 
 t = k
 
-cons :: a -> [a] -> [a]
+f = s . t
+
+isnil a = if L.null a then t else f
+
+cons :: Integer -> Cons -> Cons
 cons = (:)
 
-car (x : _) = x
+car :: Cons -> Integer
+car (!x : _) = x
 car [] = error "car of empty list"
 
+cdr :: Cons -> Cons
 cdr [] = error "cdr of empty list"
 cdr l = tail l
 
@@ -57,3 +62,29 @@ s = b (b w) (b b c)
 
 print :: Show a => a -> IO ()
 print = Prelude.print
+
+{-# INLINE i #-}
+
+{-# INLINE t #-}
+
+{-# INLINE mul #-}
+
+{-# INLINE eq #-}
+
+{-# INLINE nil #-}
+
+{-# INLINE inc #-}
+
+{-# INLINE add #-}
+
+{-# INLINE lt #-}
+
+{-# INLINE b #-}
+
+{-# INLINE c #-}
+
+{-# INLINE k #-}
+
+{-# INLINE w #-}
+
+{-# INLINE s #-}

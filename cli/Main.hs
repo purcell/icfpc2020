@@ -5,6 +5,7 @@
 
 module Main where
 
+import Galaxy
 import Options.Generic
 import Protolude
 import System.Environment (getProgName)
@@ -19,6 +20,7 @@ main = do
   progName <- getProgName
   _options :: CLIOptions <- getRecord (toS progName)
   pure ()
+  Galaxy.main
 
 -- Local Variables:
 -- dante-target: "exe:cli"

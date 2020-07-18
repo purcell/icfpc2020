@@ -4,10 +4,9 @@ module Op where
 newtype Name = Name String
   deriving (Show, Eq, Ord)
 
-data Op
-  = Number Integer
+data Expr
+  = Number !Integer
   | Add
-  | Ap
   | B
   | C
   | Car
@@ -25,4 +24,5 @@ data Op
   | Ref Name
   | S
   | T
+  | Ap !Expr !Expr
   deriving (Show)

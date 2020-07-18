@@ -5,7 +5,7 @@ import Op
 import Text.Parsec
 import Text.Parsec.String
 
-data Def = Def {dName :: Name, dOps :: [Op]}
+data Def = Def {dName :: Name, dExpr :: Expr}
   deriving (Show)
 
 name :: Parser Name
@@ -19,33 +19,38 @@ number =
 posNumber :: Parser Integer
 posNumber = read <$> many1 digit
 
-op :: Parser Op
-op =
-  (Number <$> number)
-    <|> try (Add <$ string "add")
-    <|> try (Ap <$ string "ap")
-    <|> try (Car <$ string "car")
-    <|> try (Cdr <$ string "cdr")
-    <|> try (Cons <$ string "cons")
-    <|> try (Div <$ string "div")
-    <|> try (Eq <$ string "eq")
-    <|> try (Inc <$ string "inc")
-    <|> try (IsNil <$ string "isnil")
-    <|> try (Lt <$ string "lt")
-    <|> try (Mul <$ string "mul")
-    <|> try (Neg <$ string "neg")
-    <|> try (Nil <$ string "nil")
-    <|> try (Ref <$> name)
-    <|> (B <$ string "b")
-    <|> (C <$ string "c")
-    <|> (I <$ string "i")
-    <|> (S <$ string "s")
-    <|> (T <$ string "t")
+expr :: Parser Expr
+expr =
+  char ' '
+    *> ( (Number <$> number)
+           <|> try (Add <$ string "add")
+           <|> try
+             ( string "ap"
+                 *> (Ap <$> expr <*> expr)
+             )
+           <|> try (Car <$ string "car")
+           <|> try (Cdr <$ string "cdr")
+           <|> try (Cons <$ string "cons")
+           <|> try (Div <$ string "div")
+           <|> try (Eq <$ string "eq")
+           <|> try (Inc <$ string "inc")
+           <|> try (IsNil <$ string "isnil")
+           <|> try (Lt <$ string "lt")
+           <|> try (Mul <$ string "mul")
+           <|> try (Neg <$ string "neg")
+           <|> try (Nil <$ string "nil")
+           <|> try (Ref <$> name)
+           <|> (B <$ string "b")
+           <|> (C <$ string "c")
+           <|> (I <$ string "i")
+           <|> (S <$ string "s")
+           <|> (T <$ string "t")
+       )
 
 def :: Parser Def
 def =
   Def <$> (name <* char ' ' <* char '=')
-    <*> many1 (char ' ' *> op)
+    <*> expr
 
 defs :: Parser [Def]
 defs = sepBy1 def newline <* (optional newline >> eof)
