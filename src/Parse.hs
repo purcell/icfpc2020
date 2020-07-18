@@ -1,20 +1,15 @@
-module Parse (defs, test, Def (..), OpOrRef (..)) where
+-- This is really parsing tokens
+module Parse (defs, test, Def (..), unsafeParseFile) where
 
 import Op
 import Text.Parsec
 import Text.Parsec.String
 
-data OpOrRef = AnOp Op | Ref UserFnName
+data Def = Def {dName :: Name, dOps :: [Op]}
   deriving (Show)
 
-newtype UserFnName = UserFnName String
-  deriving (Show)
-
-data Def = Def {dName :: UserFnName, dOps :: [OpOrRef]}
-  deriving (Show)
-
-defname :: Parser UserFnName
-defname = UserFnName <$> (string "galaxy" <|> ((:) <$> char ':' <*> many1 digit))
+name :: Parser Name
+name = Name <$> (string "galaxy" <|> ((:) <$> char ':' <*> many1 digit))
 
 number :: Parser Integer
 number =
@@ -34,27 +29,31 @@ op =
     <|> try (Cons <$ string "cons")
     <|> try (Div <$ string "div")
     <|> try (Eq <$ string "eq")
+    <|> try (Inc <$ string "inc")
     <|> try (IsNil <$ string "isnil")
     <|> try (Lt <$ string "lt")
     <|> try (Mul <$ string "mul")
     <|> try (Neg <$ string "neg")
     <|> try (Nil <$ string "nil")
+    <|> try (Ref <$> name)
     <|> (B <$ string "b")
     <|> (C <$ string "c")
     <|> (I <$ string "i")
     <|> (S <$ string "s")
     <|> (T <$ string "t")
 
-opOrRef :: Parser OpOrRef
-opOrRef = (AnOp <$> op) <|> (Ref <$> defname)
-
 def :: Parser Def
 def =
-  Def <$> (defname <* char ' ' <* char '=')
-    <*> many1 (char ' ' *> opOrRef)
+  Def <$> (name <* char ' ' <* char '=')
+    <*> many1 (char ' ' *> op)
 
 defs :: Parser [Def]
 defs = sepBy1 def newline <* (optional newline >> eof)
+
+unsafeParseFile :: FilePath -> IO [Def]
+unsafeParseFile f = do
+  res <- parseFromFile defs f
+  either (error . show) pure res
 
 test :: IO ()
 test = do
