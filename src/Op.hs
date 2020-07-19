@@ -21,8 +21,9 @@ data Expr
   | Mul
   | Neg
   | Nil
-  | Ref Name
+  | Ref !Name
   | S
   | T
+  | F
   | Ap !Expr !Expr
   deriving (Show)
