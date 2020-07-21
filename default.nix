@@ -5,22 +5,11 @@ let
     overlays = [ (import ./overlay.nix) ];
   };
 
-  shell = with pkgs; haskellPackages.shellFor {
-    packages = p: [ p.icfpc2020 ];
-
-    buildInputs = [
-      nixpkgs-fmt
-      niv
-      haskellPackages.hlint
-      haskellPackages.ormolu
-      haskellPackages.cabal-install
-      haskellPackages.ghcid
-      haskellPackages.ghcide
-    ];
-    withHoogle = true;
+  shell = pkgs.mkShell {
+    name = "icfpc2020";
+    buildInputs = with pkgs; [ sbcl nixpkgs-fmt curl wget ];
   };
 in
 {
   inherit shell;
-  inherit (pkgs) cli;
 }
